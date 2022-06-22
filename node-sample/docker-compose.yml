@@ -1,0 +1,49 @@
+version: '3'
+networks:
+  red0: {}
+  red1: {}
+
+
+volumes: 
+  volumen2:
+
+services:
+  balanceador:
+    image: nginx
+    volumes:
+      # - ./nginx-web1.conf:/etc/nginx/conf.d/web1.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    links:
+      - web1
+    ports:
+      - "5500:80"
+    networks:
+      - red0
+
+  web1:
+    deploy:
+      replicas: 3
+    build: .
+    ports:
+      - "80"
+    environment:
+      - APP_NAME=mercurio
+    volumes:
+      - "volumen2:/app-log"
+    depends_on:
+      - redis
+    links:
+      - redis
+    networks:
+      - red0
+
+  redis:
+    deploy:
+      replicas: 3        
+    image: redis
+    environment:
+      - PASSWORD=1234
+      - USER=abc
+    networks:
+      - red0
+
