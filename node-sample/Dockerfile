@@ -21,6 +21,9 @@ ENV APP_NAME=app1
 
 EXPOSE 80
 
+HEALTHCHECK --interval=30s --timeout=5s \
+    CMD curl -f http://localhost/ping || exit 1
+
 # -------------------------------
 
 CMD [ "node", "/app/index.js"]
