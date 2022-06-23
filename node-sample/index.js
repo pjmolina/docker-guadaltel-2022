@@ -5,8 +5,13 @@ const app = express();
 app.get('/', (req, res) => {
     res.send('Hola desde ' + process.env.APP_NAME || '(sin nombre)');
 });
+app.get('/ping', (req, res) => {
+    res.json({ msg: 'pong' });
+});
+
 app.get('/version', (req, res) => {
-    res.send('1.0');
+    res.send('3.0');
+    console.log('Version 3.0');
 });
 app.get('/time', (req, res) => {
     const ts = new Date().toISOString();

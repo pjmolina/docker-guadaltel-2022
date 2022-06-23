@@ -1,0 +1,71 @@
+version: "3"
+networks:
+  red0: {}
+  red1: {}
+
+volumes:
+  volumen2:
+
+services:
+  web1:
+    deploy:
+      replicas: 3
+    build: .
+    #ports:
+    #  - "80"
+    environment:
+      - APP_NAME=mercurio
+    volumes:
+      - "volumen2:/app-log"
+    depends_on:
+      - redis
+    links:
+      - redis
+    networks:
+      - red0
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web1.rule=Host(`web1.localhost`)"
+      - "traefik.http.routers.web1.entrypoints=web"
+
+  redis:
+    deploy:
+      replicas: 1
+    image: redis
+    environment:
+      - PASSWORD=1234
+      - USER=abc
+    networks:
+      - red0
+
+  consul:
+    image: consul
+    hostname: consul
+    ports:
+      - "8300:8300"
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:8600"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    networks:
+      - red0
+
+  traefik:
+    image: "traefik:v2.6"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    depends_on:
+      - consul
+    ports:
+      - "81:80"
+      - "8081:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - red0
