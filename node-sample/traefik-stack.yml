@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 networks:
   default:
     driver: overlay
@@ -6,6 +6,16 @@ networks:
 
 volumes:
   volumen2:
+
+secrets:
+  clave01:
+    external: true
+  clave02:
+    external: true
+  claveprivada01:
+    external: true
+  # ficheroSecreto2:
+  #  file: ./secret2.json
 
 services:
   web1:
@@ -18,6 +28,11 @@ services:
     environment:
       - APP_NAME=mercurio
       - DB_CNX="server:1.2.3.4, port=1234, db=a, user=u1, password=1234"
+    secrets:
+      - clave01
+      - clave02
+      - claveprivada01
+
     volumes:
       - "volumen2:/app-log"
     depends_on:
@@ -37,7 +52,7 @@ services:
       - PASSWORD=1234
       - USER=abc
     networks:
-      - red0
+      - default
 
   consul:
     image: consul
